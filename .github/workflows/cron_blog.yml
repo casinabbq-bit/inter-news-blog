@@ -1,18 +1,18 @@
-name: Automazione Blog Inter
+name: Automazione Blog Inter (Free)
 
 on:
   schedule:
-    - cron: '0 7 * * *' # Gira ogni giorno alle 7:00 del mattino (ora UTC, circa le 8/9 in Italia)
-  workflow_dispatch: # Ti permette di farlo partire anche a mano quando vuoi
+    - cron: '0 7 * * *'
+  workflow_dispatch:
 
 jobs:
   run-ai:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Permette a GitHub di salvare l'articolo nel tuo repository
+      contents: write
 
     steps:
-    - name: Copia il codice sul computer virtuale
+    - name: Copia il codice
       uses: actions/checkout@v4
 
     - name: Configura Python
@@ -20,13 +20,12 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Installa i pacchetti necessari
-      run: pip install requests
+    - name: Installa i pacchetti necessari (Requests e DuckDuckGo)
+      run: pip install requests duckduckgo-search
 
     - name: Fai lavorare l'AI
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+        GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       run: python agent.py
 
     - name: Pubblica l'articolo sul repository
@@ -34,5 +33,5 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add _posts/*.md
-        git commit -m "Nuovo articolo automatico" || exit 0
+        git commit -m "Nuovo articolo automatico gratuito" || exit 0
         git push
