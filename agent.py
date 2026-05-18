@@ -27,11 +27,22 @@ def chiedi_a_openai(notizie):
     prompt = f"Sei un giornalista tifoso dell'Inter. Scrivi un articolo di blog appassionante e ben formattato in italiano basandoti su queste notizie del giorno:\n\n{notizie}\n\nUsa i titoli in Markdown (##) per separare le notizie."
     
     data = {
-        "model": "gpt-4o-mini", # Modello economico e veloce
+        "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": prompt}]
     }
     response = requests.post(url, json=data, headers=headers)
-    return response.json()['choices'][0]['message']['content']
+    
+    # --- NUOVO CODICE DI CONTROLLO ERRORE ---
+    risposta_json = response.json()
+    if 'choices' not in risposta_json:
+        print("❌ ERRORE DA OPENAI:")
+        print(risposta_json) # Questo ci mostrerà il vero problema nei log di GitHub!
+        exit(1) # Ferma lo script senza rompersi in modo strano
+    # ----------------------------------------
+    
+    return risposta_json['choices'][0]['message']['content']
+
+
 
 # 3. Esecuzione del processo
 notizie_del_giorno = cerca_notizie()
