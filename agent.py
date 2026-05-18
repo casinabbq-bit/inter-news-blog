@@ -1,54 +1,62 @@
 import os
 import datetime
 import requests
+from duckduckgo_search import DDGS
 
-# 1. Funzione per cercare le notizie di oggi sull'Inter
+# 1. Ricerca GRATUITA tramite DuckDuckGo (Nessuna API Key necessaria!)
 def cerca_notizie():
-    url = "https://google.serper.dev/search"
-    payload = {"q": "Inter FC ultime notizie calciomercato", "tbm": "nws", "gl": "it", "hl": "it"}
-    headers = {"X-API-KEY": os.environ.get("SERPER_API_KEY")}
     try:
-        response = requests.post(url, json=payload, headers=headers)
-        risultati = response.json().get('news', [])
+        print("Cerco notizie su DuckDuckGo...")
+        risultati = DDGS().news(keywords="Inter FC ultime notizie", max_results=5)
         testo_notizie = ""
-        for n in risultati[:5]: # Prende le prime 5 notizie
-            testo_notizie += f"- {n['title']}: {n['snippet']}\n"
+        for n in risultati:
+            testo_notizie += f"- {n['title']}: {n['body']}\n"
+        
+        if not testo_notizie:
+            return "Nessuna notizia rilevante trovata oggi."
         return testo_notizie
-    except:
-        return "Nessuna nuova notizia trovata oggi."
+    except Exception as e:
+        print(f"Errore nella ricerca: {e}")
+        return "Nessuna notizia trovata a causa di un errore."
 
-# 2. Funzione per far scrivere l'articolo a OpenAI
-def chiedi_a_openai(notizie):
-    url = "https://api.openai.com/v1/chat/completions"
+# 2. Generazione AI GRATUITA tramite Groq (Modello Llama 3)
+def chiedi_a_groq(notizie):
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    chiave = os.environ.get('GROQ_API_KEY')
+    
+    if not chiave:
+        print("❌ ERRORE: La chiave GROQ_API_KEY non è stata trovata nei Secrets di GitHub!")
+        exit(1)
+
     headers = {
-        "Authorization": f"Bearer {os.environ.get('OPENAI_API_KEY')}",
+        "Authorization": f"Bearer {chiave}",
         "Content-Type": "application/json"
     }
-    prompt = f"Sei un giornalista tifoso dell'Inter. Scrivi un articolo di blog appassionante e ben formattato in italiano basandoti su queste notizie del giorno:\n\n{notizie}\n\nUsa i titoli in Markdown (##) per separare le notizie."
+    
+    prompt = f"Sei un giornalista tifoso dell'Inter. Scrivi un articolo di blog appassionante e ben formattato in italiano basandoti su queste notizie del giorno:\n\n{notizie}\n\nUsa i titoli in Markdown (##) per separare le notizie. Non inserire convenevoli, scrivi solo l'articolo."
     
     data = {
-        "model": "gpt-4o-mini",
+        "model": "llama3-70b-8192", # Modello gratuito di Meta, molto intelligente
         "messages": [{"role": "user", "content": prompt}]
     }
+    
+    print("Elaborazione dell'articolo con l'AI in corso...")
     response = requests.post(url, json=data, headers=headers)
-    
-    # --- NUOVO CODICE DI CONTROLLO ERRORE ---
     risposta_json = response.json()
-    if 'choices' not in risposta_json:
-        print("❌ ERRORE DA OPENAI:")
-        print(risposta_json) # Questo ci mostrerà il vero problema nei log di GitHub!
-        exit(1) # Ferma lo script senza rompersi in modo strano
-    # ----------------------------------------
     
+    # Controllo Errori
+    if 'choices' not in risposta_json:
+        print("❌ ERRORE DA GROQ:")
+        print(risposta_json)
+        exit(1)
+        
     return risposta_json['choices'][0]['message']['content']
-
-
 
 # 3. Esecuzione del processo
 notizie_del_giorno = cerca_notizie()
-articolo_finale = chiedi_a_openai(notizie_del_giorno)
+articolo_finale = chiedi_a_groq(notizie_del_giorno)
 
-# 4. Salva l'articolo con la data di oggi
+# 4. Salvataggio
 oggi = datetime.date.today().strftime("%Y-%m-%d")
 nome_file = f"_posts/{oggi}-notizie-inter.md"
 
@@ -57,4 +65,4 @@ with open(nome_file, "w", encoding="utf-8") as f:
     f.write(f"---\nlayout: post\ntitle: 'Notizie Inter del {oggi}'\ndate: {oggi}\n---\n\n")
     f.write(articolo_finale)
 
-print("Articolo creato!")
+print("✅ Articolo creato con successo!")
