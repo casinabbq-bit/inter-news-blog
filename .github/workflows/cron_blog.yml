@@ -35,3 +35,4 @@ jobs:
         git add _posts/*.md
         git commit -m "Nuovo articolo automatico gratuito" || exit 0
         git push
+
