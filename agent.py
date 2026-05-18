@@ -3,7 +3,7 @@ import datetime
 import requests
 from duckduckgo_search import DDGS
 
-# 1. Ricerca GRATUITA tramite DuckDuckGo (Nessuna API Key necessaria!)
+# 1. Ricerca GRATUITA tramite DuckDuckGo
 def cerca_notizie():
     try:
         print("Cerco notizie su DuckDuckGo...")
@@ -36,7 +36,7 @@ def chiedi_a_groq(notizie):
     prompt = f"Sei un giornalista tifoso dell'Inter. Scrivi un articolo di blog appassionante e ben formattato in italiano basandoti su queste notizie del giorno:\n\n{notizie}\n\nUsa i titoli in Markdown (##) per separare le notizie. Non inserire convenevoli, scrivi solo l'articolo."
     
     data = {
-        "model": "llama3-70b-8192", # Modello gratuito di Meta, molto intelligente
+        "model": "llama3-70b-8192",
         "messages": [{"role": "user", "content": prompt}]
     }
     
@@ -44,7 +44,6 @@ def chiedi_a_groq(notizie):
     response = requests.post(url, json=data, headers=headers)
     risposta_json = response.json()
     
-    # Controllo Errori
     if 'choices' not in risposta_json:
         print("❌ ERRORE DA GROQ:")
         print(risposta_json)
@@ -56,7 +55,7 @@ def chiedi_a_groq(notizie):
 notizie_del_giorno = cerca_notizie()
 articolo_finale = chiedi_a_groq(notizie_del_giorno)
 
-# 4. Salvataggio
+# 4. Salvataggio dell'articolo
 oggi = datetime.date.today().strftime("%Y-%m-%d")
 nome_file = f"_posts/{oggi}-notizie-inter.md"
 
