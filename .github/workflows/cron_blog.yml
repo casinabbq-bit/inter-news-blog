@@ -8,6 +8,11 @@ on:
 jobs:
   aggiorna-blog:
     runs-on: ubuntu-latest
+    
+    # Questo assicura che il robot abbia sempre i permessi di scrittura, a prescindere dalle impostazioni
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout del codice
         uses: actions/checkout@v4
@@ -28,10 +33,6 @@ jobs:
         run: python agent.py
         
       - name: Salva i nuovi articoli sul repository
-        run: |
-          git config --global user.name "GitHub Action Bot"
-          git config --global user.email "action@github.com"
-          git add .
-          git commit -m "Aggiunto nuovo articolo generato dall'AI" || echo "Niente di nuovo da salvare"
-          git pull --rebase origin main
-          git push origin main
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Aggiunto nuovo articolo generato dall'AI"
