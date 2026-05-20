@@ -1,10 +1,9 @@
-
 name: Automazione Blog Inter (Free)
 
 on:
   workflow_dispatch: # Ti permette di avviarlo a mano con un pulsante
   schedule:
-    - cron: '0 8 * * *' # Questo lo fa partire in automatico tutti i giorni (puoi lasciarlo così)
+    - cron: '0 8 * * *' # Questo lo fa partire in automatico tutti i giorni
 
 jobs:
   aggiorna-blog:
@@ -34,5 +33,5 @@ jobs:
           git config --global user.email "action@github.com"
           git add .
           git commit -m "Aggiunto nuovo articolo generato dall'AI" || echo "Niente di nuovo da salvare"
+          git pull --rebase origin main
           git push
-
