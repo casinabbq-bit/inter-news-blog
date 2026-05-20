@@ -7,10 +7,11 @@ from duckduckgo_search import DDGS
 def cerca_notizie():
     try:
         print("Cerco notizie su DuckDuckGo...")
-        risultati = DDGS().news(keywords="Inter FC ultime notizie", max_results=5)
+        # Usa 'text' invece di 'news' e cerca le novità dell'ultimo giorno ('d'), è molto più affidabile!
+        risultati = DDGS().text(keywords="Inter calcio ultime notizie", timelimit="d", max_results=5)
         testo_notizie = ""
         for n in risultati:
-            testo_notizie += f"- {n['title']}: {n['body']}\n"
+            testo_notizie += f"- {n.get('title', 'Senza Titolo')}: {n.get('body', '')}\n"
 
         if not testo_notizie:
             return "Nessuna notizia rilevante trovata oggi."
@@ -65,4 +66,3 @@ with open(nome_file, "w", encoding="utf-8") as f:
     f.write(articolo_finale)
 
 print("✅ Articolo creato:", nome_file)
-
