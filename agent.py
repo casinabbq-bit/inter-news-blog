@@ -1,7 +1,7 @@
 import os
 import datetime
 import requests
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 # 1. Ricerca GRATUITA tramite DuckDuckGo
 def cerca_notizie():
@@ -36,7 +36,7 @@ def chiedi_a_groq(notizie):
     prompt = f"Sei un giornalista tifoso dell'Inter. Scrivi un articolo di blog appassionante e ben formattato in italiano basandoti su queste notizie del giorno:\n\n{notizie}\n\nUsa i titoli in Markdown (##) per separare le notizie. Non inserire convenevoli, scrivi solo l'articolo."
     
     data = {
-        "model": "llama3-70b-8192",
+        "model": "llama-3.3-70b-versatile",
         "messages": [{"role": "user", "content": prompt}]
     }
     
@@ -64,4 +64,4 @@ with open(nome_file, "w", encoding="utf-8") as f:
     f.write(f"---\nlayout: post\ntitle: 'Notizie Inter del {oggi}'\ndate: {oggi}\n---\n\n")
     f.write(articolo_finale)
 
-print("✅ Articolo creato con successo!")
+print("✅ Articolo creato:", nome_file)
