@@ -34,4 +34,4 @@ jobs:
           git add .
           git commit -m "Aggiunto nuovo articolo generato dall'AI" || echo "Niente di nuovo da salvare"
           git pull --rebase origin main
-          git push
+          git push origin main
